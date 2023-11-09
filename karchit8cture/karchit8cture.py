@@ -1,6 +1,7 @@
 import kubernetes
 from kubernetes import client, config
-import checks.core_info as core_info
+import checks.core_node_info as core_node_info
+import checks.core_pod_info as core_pod_info
 
 def validate_k8s_cluster():
     try:
@@ -9,17 +10,20 @@ def validate_k8s_cluster():
 
         # Create a Kubernetes API client for nodes information gathering 
         nodes_v1 = client.CoreV1Api().list_node()
+        pods_v1 = client.CoreV1Api()
 
         # Collect results by executing a different check each time 
         results = {
-            "Node Readiness": core_info.check_node_readiness(nodes_v1),
+            "Node Readiness": core_node_info.check_node_readiness(nodes_v1),
             "Minimum Control Plane Nodes": 
-                core_info.check_control_plane_count(client.CoreV1Api().
+                core_node_info.check_control_plane_count(client.CoreV1Api().
                                                     list_node(label_selector='node-role.kubernetes.io/control-plane')),
             "Minimum Data Plane Nodes": 
-                core_info.check_data_plane_count(client.CoreV1Api().
+                core_node_info.check_data_plane_count(client.CoreV1Api().
                                                     list_node(label_selector='node-role.kubernetes.io/worker')),
-            "Node Capacity": core_info.verify_hardware_capacity(nodes_v1),
+            "Node Capacity": core_node_info.verify_hardware_capacity(nodes_v1),
+            "Kube System Pods": core_pod_info.check_kubesystem_pods(pods_v1.list_namespaced_pod('kube-system')),
+            "Default Namespace Pods Existence": core_pod_info.check_default_pods_existence(pods_v1.list_namespaced_pod('default')),
         }
         return results
 
