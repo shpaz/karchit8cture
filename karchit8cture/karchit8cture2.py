@@ -7,6 +7,7 @@ class KubernetesApiClient:
     def __init__(self, api_token, host):
         self.configuration = client.Configuration()
         self.configuration.host = host
+        self.configuration.api_key_prefix['authorization'] = 'Bearer'
         self.configuration.verify_ssl=False
 
         if api_token:
@@ -42,6 +43,6 @@ if __name__ == "__main__":
     # Instantiate the core_v1_api with the configuration from the YAML file
     core_v1_api = CoreV1ApiClient(api_token=config_data.get('api_token'), host=config_data.get('host'))
     # Make API calls using the methods of KubernetesApiClient
-    #result1 = core_v1_api.list_pod_for_all_namespaces()
-    result2 = core_v1_api.list_namespaced_pod()
-    pprint(result2)
+    result1 = core_v1_api.list_pod_for_all_namespaces()
+    #result2 = core_v1_api.list_namespaced_pod('kube-system')
+    pprint(result1)
