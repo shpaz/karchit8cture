@@ -1,5 +1,0 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: karchit8cture-user-sa
-  namespace: kube-system 

@@ -1,39 +1,24 @@
-import kubernetes
-from kubernetes import client, config
-import checks.core_node_info as core_node_info
-import checks.core_pod_info as core_pod_info
-
-def validate_k8s_cluster():
-    try:
-        # Load the Kubernetes configuration from your kubeconfig file
-        config.load_kube_config()
-
-        # Create a Kubernetes API client for nodes information gathering 
-        nodes_v1 = client.CoreV1Api().list_node()
-        pods_v1 = client.CoreV1Api()
-
-        # Collect results by executing a different check each time 
-        results = {
-            "Node Readiness": core_node_info.check_node_readiness(nodes_v1),
-            "Minimum Control Plane Nodes": 
-                core_node_info.check_control_plane_count(client.CoreV1Api().
-                                                    list_node(label_selector='node-role.kubernetes.io/control-plane')),
-            "Minimum Data Plane Nodes": 
-                core_node_info.check_data_plane_count(client.CoreV1Api().
-                                                    list_node(label_selector='node-role.kubernetes.io/worker')),
-            "Node Capacity": core_node_info.verify_hardware_capacity(nodes_v1),
-            "Kube System Pods": core_pod_info.check_kubesystem_pods(pods_v1.list_namespaced_pod('kube-system')),
-            "Default Namespace Pods Existence": core_pod_info.check_default_pods_existence(pods_v1.list_namespaced_pod('default')),
-        }
-        return results
-
-    except Exception as e:
-        print(f"Error while creating the Kubernetes context: {str(e)}")
-        return {"error": True}
+import yaml
+from pprint import pprint
+from checks.corev1apiclient import CoreV1ApiClient
 
 if __name__ == "__main__":
-    validation_results = validate_k8s_cluster()
+    # Read configuration from YAML file
+    with open("k8s_config.yaml", "r") as yaml_file:
+        config_data = yaml.safe_load(yaml_file)
 
+    # Instantiate the core_v1_api with the configuration from the YAML file
+    core_v1_api = CoreV1ApiClient(api_token=config_data.get('api_token'), host=config_data.get('host'))
+    
+    # Make API calls using the methods of KubernetesApiClient
+    results = {
+           "Node Readiness": core_v1_api.check_node_readiness(),
+            "Minimum Control Plane Nodes": core_v1_api.check_control_plane_count(),
+            "Minimum Data Plane Nodes": core_v1_api.check_data_plane_count(),
+            "Node Capacity": core_v1_api.verify_hardware_capacity(),
+            "Kube System Pods": core_v1_api.check_kubesystem_pods(),
+            "Default Namespace Pods Existence": core_v1_api.check_default_pods_existence(),
+        }
     print("Validation Results:")
-    for check, result in validation_results.items():
+    for check, result in results.items():
         print(f"{check}: {'Passed' if result else 'Failed'}")
