@@ -2,7 +2,6 @@ from kubeapiclient import KubernetesApiClient
 import kubernetes
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
-import requests
 
 class CoreV1ApiClient(KubernetesApiClient):
     def __init__(self, api_token, host):
@@ -87,4 +86,3 @@ class CoreV1ApiClient(KubernetesApiClient):
             pass
         return True
     
-        return True
