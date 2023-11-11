@@ -19,6 +19,19 @@ Once you have all prerequisites met, you can run the following in order for `kar
 $ python3 karchit8cture.py
 ```
 
+In case you want to work with `Python Virtual Envvironments (venv)`, make sure the follow the following procedure.
+
+Create and activate a `venv` on your local computer:
+```bash
+$ python -m venv env
+$ source env/bin/activate
+```
+Install needed depednecies for running `k8archit8cture`: 
+
+```bash
+$ pip3 install -r requirements.txt
+```
+
 # Contributing to karchit8cture
 
 Thank you for considering contributing to this project! Follow these guidelines to contribute:
