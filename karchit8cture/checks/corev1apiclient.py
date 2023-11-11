@@ -2,6 +2,7 @@ from kubeapiclient import KubernetesApiClient
 import kubernetes
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
+import requests
 
 class CoreV1ApiClient(KubernetesApiClient):
     def __init__(self, api_token, host):
@@ -75,5 +76,15 @@ class CoreV1ApiClient(KubernetesApiClient):
                 return False
         except Exception as e:
             print(f"Error while checking node capacity resources: {str(e)}")
+
+### reference the check https://docs.openshift.com/container-platform/4.10/authentication/remove-kubeadmin.html
+    def check_default_kubeadmin_user(self):
+        try:
+            api_response = self.core_v1_api.read_namespaced_secret(namespace='kube-system', name='kubeadmin')
+            if api_response:
+                return False
+        except ApiException as e:
+            pass
+        return True
     
         return True

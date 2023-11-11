@@ -18,6 +18,7 @@ if __name__ == "__main__":
             "Node Capacity": core_v1_api.verify_hardware_capacity(),
             "Kube System Pods": core_v1_api.check_kubesystem_pods(),
             "Default Namespace Pods Existence": core_v1_api.check_default_pods_existence(),
+            "Default kubeadmin secret exists": core_v1_api.check_default_kubeadmin_user(),
         }
     print("Validation Results:")
     for check, result in results.items():

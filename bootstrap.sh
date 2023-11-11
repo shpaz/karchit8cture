@@ -36,6 +36,7 @@ if [ "$answer" == "yes" ] || [ "$answer" == "y" ]; then
   deploy_k8s_cluster
   apply_manifests
   setup_kube_access
+  echo "Instalttion finish successfully"
 else
   echo "Kubernetes deployment skipped."
   apply_manifests
