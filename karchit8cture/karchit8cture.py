@@ -1,3 +1,4 @@
+import yaml
 import kubernetes
 from kubernetes import client, config
 import checks.core_node_info as core_node_info
@@ -5,12 +6,21 @@ import checks.core_pod_info as core_pod_info
 
 def validate_k8s_cluster():
     try:
-        # Load the Kubernetes configuration from your kubeconfig file
-        config.load_kube_config()
+      # Load both bearer token and kubernetes host from a config file
+      with open("../manifests/k8s_config.yaml", "r") as yaml_file:
+        config_data = yaml.safe_load(yaml_file)
+
+        # Load the Kubernetes configuration according to a pre-created service account bearer token 
+        configuration = client.Configuration()
+        configuration.api_key['authorization'] = config_data.get('api_token')
+        configuration.api_key_prefix['authorization'] = 'Bearer'
+        configuration.host = 'https://localhost:35675'
+        configuration.verify_ssl=False
+        api_client = client.ApiClient(configuration)
 
         # Create a Kubernetes API client for nodes information gathering 
-        nodes_v1 = client.CoreV1Api().list_node()
-        pods_v1 = client.CoreV1Api()
+        nodes_v1 = client.CoreV1Api(api_client).list_node()
+        pods_v1 = client.CoreV1Api(api_client)
 
         # Collect results by executing a different check each time 
         results = {
