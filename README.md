@@ -4,7 +4,7 @@ karchit8cture (Kuberenetes Architecture) is a Kubernetes-native tool that will h
 
 ## Installation
 
-In order to start interacting with `karchit8cture`, you can run the `bootstrap.sh` command, that will perform the following steps: 
+In order to start interacting with `karchit8cture`, you can run the `bootstrap.sh` command, that will perform the following steps(kind binary needs to be preinstalled): 
 * Create a `kind` based Kubernetes cluster for you, using the `manifests/kind.yaml` file 
 * Apply all the manifests that are relevant for `karchit8cture` to interact with your Kubernetes cluster 
 * Auto-edit the `karchit8cture/k8s_info.yaml` file, that as of now is being used by `karchit8cture.py` in order to fetch both Kubernertes host and API token 
@@ -16,6 +16,7 @@ $ ./bootstrap.sh
 
 Once you have all prerequisites met, you can run the following in order for `karchit8cture` to start testing your cluster: 
 ```bash
+$ cd karchit8cture
 $ python3 karchit8cture.py
 ```
 
