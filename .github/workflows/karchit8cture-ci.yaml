@@ -4,7 +4,7 @@ on:
     branches:
     - main
 jobs:
-  tests:
+  karchit8cture-ci-workflow:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code 
@@ -20,6 +20,11 @@ jobs:
         with:
           cluster_name: playground
           config: manifests/kind.yaml
+
+      - name: Label Kubernetes worker nodes 
+        run: |
+             curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+             kubectl get nodes | grep worker | awk '{print$1}' | xargs -I {} kubectl label node {} node-role.kubernetes.io/worker=worker --overwrite
 
       - name: Run a bootstrap script to install all karchit8cture depedencies 
         run: no | ./bootstrap.sh
