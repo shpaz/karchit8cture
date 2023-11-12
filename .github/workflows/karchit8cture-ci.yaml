@@ -33,12 +33,3 @@ jobs:
         run: |
           cd karchit8cture
           python3 karchit8cture.py
-
-      - name: Get current cluster state
-        run: |
-          kubectl get nodes 
-          kubectl get pods -n kube-system 
-          kubectl get pods -n default 
-          free -mh
-          lscpu 
-
