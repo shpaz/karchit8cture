@@ -39,10 +39,12 @@ read -p "Do you want to deploy Kubernetes? (yes/no): " answer
 if [ "$answer" == "yes" ] || [ "$answer" == "y" ]; then
   deploy_k8s_cluster
   apply_manifests
+  apply_tests
   setup_kube_access
   echo "Installation Finished Successfully"
 else
   echo "Kubernetes deployment skipped."
   apply_manifests
+  apply_tests
   setup_kube_access
 fi
