@@ -8,6 +8,7 @@ class CoreV1ApiClient(KubernetesApiClient):
         super().__init__(api_token, host)
         self.core_v1_api = client.CoreV1Api(self.api_client)
 
+    '''This function checks if all pods in the kube-system namespace are up and running'''
     def check_kubesystem_pods(self):
         try:
             api_response = self.core_v1_api.list_namespaced_pod(namespace='kube-system')
@@ -15,17 +16,20 @@ class CoreV1ApiClient(KubernetesApiClient):
                 if pod.status.phase != "Running":
                     return False
         except ApiException as e:
-            print("Exception when calling CoreV1Api->List Pods in kube-system namespace: %s\n" % e)
+            print("Exception when calling CoreV1Api->Couldn't list Pods in kube-system namespace: %s\n" % e)
         return True
     
+    ''' This function checks wehther there are pod in the default namespace or not'''
     def check_default_pods_existence(self):
         try:
             api_response = self.core_v1_api.list_namespaced_pod(namespace='default')
             if len(api_response.items) > 0:
                 return False
         except ApiException as e:
-            print("Exception when calling CoreV1Api->Pods exist in default namespace: %s\n" % e)
+            print("Exception when calling CoreV1Api->Couldn't find out if pods exist default namespace: %s\n" % e)
         return True    
+    
+    ''' This function checks if all nodes are in ready state'''
     def check_node_readiness(self):
         try:
             # Make sure to gather all nodes' status 
@@ -34,9 +38,10 @@ class CoreV1ApiClient(KubernetesApiClient):
                 if node.status.conditions[3].status != "True":
                     return False
         except Exception as e:
-            print(f"Error while checking node readiness: {str(e)}")    
+            print("Exception when calling CoreV1Api->Couldn't get node readiness state: %s\n" % e)    
         return True
-
+    
+    ''' This function checks whether there are enough master nodes to preserve a quorum'''
     def check_control_plane_count(self):
         minimum_control_plane_nodes = 3 # In an HA based cluster, minimum number is 3 
         try:
@@ -45,9 +50,10 @@ class CoreV1ApiClient(KubernetesApiClient):
             if len(api_response.items) < minimum_control_plane_nodes:
                 return False
         except Exception as e:
-            print(f"Error while checking control plane nodes count: {str(e)}")
+            print("Exception when calling CoreV1Api->Couldn't find our whether there are enough master nodes: %s\n" % e)
         return True
 
+    ''' This function checks whether there are enough worker nodes to preserve a quorum'''
     def check_data_plane_count(self):
         minimum_data_plane_nodes = 2 # In an HA based cluster, minimum number is 3 
         try:
@@ -56,9 +62,10 @@ class CoreV1ApiClient(KubernetesApiClient):
             if len(api_response.items) < minimum_data_plane_nodes:
                 return False
         except Exception as e:
-            print(f"Error while checking data plane nodes count: {str(e)}")  
+            print("Exception when calling CoreV1Api->Couldn't find our whether there are enough master nodes: %s\n" % e)  
         return True
 
+    ''' This function checks whether nodes have the minimum amount of resources required'''
     def verify_hardware_capacity(self):
 
         min_memory = 16 
@@ -74,9 +81,10 @@ class CoreV1ApiClient(KubernetesApiClient):
                if memory < min_memory or cpu < min_cpu:
                 return False
         except Exception as e:
-            print(f"Error while checking node capacity resources: {str(e)}")
+            print("Exception when calling CoreV1Api->Couldn't gather information on node hardware capacity: %s\n" % e)
         return True
-
+    
+    ''' This function checks whether the kubeadmin secret exists (as it's a security breach)'''
 ### reference the check https://docs.openshift.com/container-platform/4.10/authentication/remove-kubeadmin.html
     def check_default_kubeadmin_user(self):
         try:
@@ -87,3 +95,13 @@ class CoreV1ApiClient(KubernetesApiClient):
             pass
         return True
     
+    ''' This function verifies that all persistent volumes are in bound state'''
+    def check_all_persistent_volumes_bound(self):
+        try:
+            api_response = self.core_v1_api.list_persistent_volume_claim_for_all_namespaces()
+            for pvc in api_response.items:
+                if pvc.status.phase != "Bound":
+                    return False
+        except ApiException as e:
+            print("Exception when calling CoreV1Api->Couldn't list pvc on all namespaces: %s\n" % e)
+        return True         
