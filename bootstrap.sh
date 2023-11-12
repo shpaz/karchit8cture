@@ -15,11 +15,15 @@ deploy_k8s_cluster() {
   sleep 5 
 }
 apply_manifests() {
-  # Creates a namespace and initializes a service account with a long-lived token 
+  # Applies all relevant manifests for the stratup of the cluster and execution of karchit8cture.py 
   kubectl apply -f manifests/01-namespace.yaml
   kubectl apply -f manifests/02-service-account.yaml
   kubectl apply -f manifests/03-clusterrolebinding.yaml
   kubectl apply -f manifests/04-secret.yaml
+}
+apply_tests() {
+  # Applies all manifests relevant for testing extra tests that are not there in default 
+  kubectl apply -f tests/
 }
 setup_kube_access() {
   # Changes k8s_config.yaml values to suite to craeted service account's
@@ -35,10 +39,12 @@ read -p "Do you want to deploy Kubernetes? (yes/no): " answer
 if [ "$answer" == "yes" ] || [ "$answer" == "y" ]; then
   deploy_k8s_cluster
   apply_manifests
+  apply_tests
   setup_kube_access
   echo "Installation Finished Successfully"
 else
   echo "Kubernetes deployment skipped."
   apply_manifests
+  apply_tests
   setup_kube_access
 fi

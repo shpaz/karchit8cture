@@ -1,6 +1,7 @@
 import yaml
 from pprint import pprint
 from checks.corev1apiclient import CoreV1ApiClient
+from checks.certificatesv1apiclient import CertificatesV1ApiClient
 
 if __name__ == "__main__":
     # Read configuration from YAML file
@@ -9,6 +10,7 @@ if __name__ == "__main__":
 
     # Instantiate the core_v1_api with the configuration from the YAML file
     core_v1_api = CoreV1ApiClient(api_token=config_data.get('api_token'), host=config_data.get('host'))
+    certificates_v1_api = CertificatesV1ApiClient(api_token=config_data.get('api_token'), host=config_data.get('host'))
     
     # Make API calls using the methods of KubernetesApiClient
     results = {
@@ -19,6 +21,8 @@ if __name__ == "__main__":
             "Kube System Pods": core_v1_api.check_kubesystem_pods(),
             "Default Namespace Pods Existence": core_v1_api.check_default_pods_existence(),
             "Default kubeadmin secret exists": core_v1_api.check_default_kubeadmin_user(),
+            "All PVCs are in Bound State": core_v1_api.check_all_persistent_volumes_bound(),
+            "There are no pending CSRs": certificates_v1_api.check_for_pending_csrs(),
         }
     print("Validation Results:")
     for check, result in results.items():
