@@ -75,6 +75,7 @@ class CoreV1ApiClient(KubernetesApiClient):
                 return False
         except Exception as e:
             print(f"Error while checking node capacity resources: {str(e)}")
+        return True
 
 ### reference the check https://docs.openshift.com/container-platform/4.10/authentication/remove-kubeadmin.html
     def check_default_kubeadmin_user(self):
