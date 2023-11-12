@@ -4,7 +4,7 @@ on:
     branches:
     - main
 jobs:
-  karchit8cture CI workflow:
+  karchit8cture-ci-workflow:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code 
